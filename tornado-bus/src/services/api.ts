@@ -1,25 +1,30 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.tornadobus.com',
+  baseURL: 'https://discovery.local.onroadts.com/v1/web',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
 });
 
-export interface Trip {
-  id: string;
-  origin: string;
-  destination: string;
-  date: string;
-  price: number;
+export interface City {
+  id: number;
+  name: string;
+  key?: string;
+  cityAbrev?: string;
+  abrev?: string;
 }
 
-export const searchTrips = async (origin: string, destination: string, date: string): Promise<Trip[]> => {
-  const response = await api.get('/trips', {
-    params: { origin, destination, date },
-  });
-  return response.data;
+export const searchOriginCities = async (value: string): Promise<City[]> => {
+  const response = await api.post('/select/origin', { value });
+  return response.data.data;
 };
 
-export const getTripDetails = async (tripId: string): Promise<Trip> => {
-  const response = await api.get(`/trips/${tripId}`);
-  return response.data;
+export const searchDestinationCities = async (cityInitId: number, value: string): Promise<City[]> => {
+  const response = await api.post(`/select/destiny/${cityInitId}`, { value });
+  return response.data.data;
 };
+
+
+export default api;

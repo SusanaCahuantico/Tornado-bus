@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar';
 import SearchForm from '../components/SearchForm';
 
 const Home: React.FC = () => (
-  <div>
+  <div className='bg-gray-100'>
     <Navbar />
     <SearchForm />
   </div>
