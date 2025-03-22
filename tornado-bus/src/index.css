@@ -37,7 +37,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #ee7630;
+  background-color: #f15900;
   color: white;
   cursor: pointer;
   transition: border-color 0.25s;
@@ -45,6 +45,5 @@ button {
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto rgb(252, 120, 44);
 }
-

@@ -1,15 +1,18 @@
 import './App.css'
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/Home';
+import Navbar from './components/Navbar';
+import SearchForm from './components/SearchForm';
+import TripList from './components/TripList';
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <div className="container mx-auto p-4">
+        <SearchForm />
+      </div>
+      <TripList/>
+    </div>
   );
 };
 
