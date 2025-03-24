@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/Tornado-bus/tornado-bus/",
-    "deploy": "gh-pages -d dist -b gh-pages",
+    "build": "tsc -b && vite build",
     "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist -b gh-pages", 
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@types/node": "^22.13.13",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
