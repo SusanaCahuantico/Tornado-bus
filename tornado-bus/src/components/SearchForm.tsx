@@ -270,8 +270,8 @@ const SearchForm: React.FC = () => {
               travelId={selectedTrip.id}
               cityInitId={selectedTrip.cityInitID}
               cityEndId={selectedTrip.cityEndID}
-              onSeatSelect={handleSeatSelect}
               selectedSeats={selectedSeats}
+              onSeatSelect={handleSeatSelect}
             />
 
             <div className="mt-4 flex justify-between items-center">

@@ -9,6 +9,7 @@ interface BusSeatMapProps {
   cityInitId: number;
   cityEndId: number;
   seats: Seat[];
+  onSeatSelect: (seatNumber: number) => void;
 }
 
 interface SelectionModalProps {
