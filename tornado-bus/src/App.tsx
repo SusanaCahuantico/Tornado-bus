@@ -2,7 +2,7 @@ import './App.css'
 import React from 'react';
 import Navbar from './components/Navbar';
 import SearchForm from './components/SearchForm';
-import TripList from './components/TripList';
+// import TripList from './components/TripList';
 
 const App: React.FC = () => {
   return (
@@ -11,7 +11,6 @@ const App: React.FC = () => {
       <div className="container mx-auto p-4">
         <SearchForm />
       </div>
-      <TripList/>
     </div>
   );
 };

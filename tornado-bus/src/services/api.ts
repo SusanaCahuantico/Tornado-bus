@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Configuración base de axios
 const api = axios.create({
   baseURL: 'https://discovery.local.onroadts.com/v1/web',
   headers: {
@@ -18,7 +17,6 @@ export interface City {
   abrev?: string;
 }
 
-// Interfaz para el viaje
 export interface Trip {
   id: number;
   dateInitFormat: string;
@@ -39,7 +37,6 @@ export interface Trip {
   currency: string;
 }
 
-// Interfaz para el asiento
 export interface Seat {
   id: number;
   row: number;
@@ -49,7 +46,6 @@ export interface Seat {
   colorGroup: string;
 }
 
-// Interfaz para el tipo de pasajero
 export interface PassengerType {
   id: number;
   name: string;
@@ -68,8 +64,23 @@ export const searchDestinationCities = async (cityInitId: number, value: string)
 };
 
 export const getPassengerTypes = async (): Promise<PassengerType[]> => {
-  const response = await axios.get('https://api.local.onroadts.com/v1/web/select/type');
-  return response.data.data; // Asegúrate de que response.data.data sea un array
+  try {
+    const response = await axios.get('https://api.local.onroadts.com/v1/web/select/type');
+    
+    if (!response.data?.data) {
+      throw new Error('Estructura de respuesta inválida');
+    }
+    
+    return response.data.data.map((item: any) => ({
+      id: Number(item.id) || 0,
+      name: item.name || 'Desconocido',
+      ageMin: Number(item.ageMin) || 0,
+      ageMax: Number(item.ageMax) || 0
+    }));
+  } catch (error) {
+    console.error('Error al obtener tipos de pasajero:', error);
+    return [];
+  }
 };
 
 export const fetchTrips = async (
@@ -110,6 +121,41 @@ export const getAvailableSeats = async (
   return response.data.data;
 };
 
+export const markSeat = async (
+  seatId: number,
+  ticketTypeId: number,
+  cityInitId: number,
+  cityEndId: number,
+  itineraryID: number,
+  ticketSessionId: number | null = null) => {
+  const response = await axios.put('/list/seats/mark', {
+    tickeTypeID: ticketTypeId,
+    ticketSessionId,
+    cityInitID: cityInitId,
+    cityEndID: cityEndId,
+    itineraryID,
+    busPlaceID: [seatId],
+    tempTicketId: null,
+    ticketRef: null,
+    idMulti: null,
+    isReturn: false,
+    currencyID: 567,
+    mDestiny: null,
+    mOrigin: null,
+    mRow: null,
+    timeZone: 'America/Lima',
+    externalInitID: null,
+    externalEndID: null,
+  });
 
+  return response.data;
+};
+
+export const getShoppingCart = async (ticketSessionId: number): Promise<any> => {
+  const response = await axios.get(
+    `/list/shopping-cart/${ticketSessionId}`
+  );
+  return response.data;
+};
 
 export default api;

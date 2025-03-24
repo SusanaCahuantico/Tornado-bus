@@ -1,4 +1,3 @@
-// src/redux/slices/tripSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Trip, Seat, PassengerType } from "../services/api";
 
@@ -7,7 +6,8 @@ interface TripState {
   selectedTrip: Trip | null;
   busLayout: Seat[] | null;
   selectedSeats: Seat[];
-  passengerTypes: PassengerType[];
+  passengerCounts: Record<number, number>;
+  passengerTypesList: PassengerType[];
 }
 
 const initialState: TripState = {
@@ -15,7 +15,8 @@ const initialState: TripState = {
   selectedTrip: null,
   busLayout: null,
   selectedSeats: [],
-  passengerTypes: [],
+  passengerCounts: {},
+  passengerTypesList: [],
 };
 
 const tripSlice = createSlice({
@@ -27,19 +28,41 @@ const tripSlice = createSlice({
     },
     setSelectedTrip(state, action: PayloadAction<Trip>) {
       state.selectedTrip = action.payload;
+      state.selectedSeats = [];
     },
     setBusLayout(state, action: PayloadAction<Seat[]>) {
       state.busLayout = action.payload;
     },
     addSelectedSeat(state, action: PayloadAction<Seat>) {
-      state.selectedSeats.push(action.payload);
+      const totalPassengers = Object.values(state.passengerCounts).reduce((sum, count) => sum + count, 0);
+      if (state.selectedSeats.length < totalPassengers) {
+        state.selectedSeats.push(action.payload);
+      }
     },
     removeSelectedSeat(state, action: PayloadAction<number>) {
-      state.selectedSeats = state.selectedSeats.filter((seat) => seat.id !== action.payload );
+      state.selectedSeats = state.selectedSeats.filter((seat) => seat.id !== action.payload);
     },
     setPassengerTypes(state, action: PayloadAction<PassengerType[]>) {
-      state.passengerTypes = action.payload;
+      state.passengerTypesList = action.payload;
+      if (Object.keys(state.passengerCounts).length === 0) {
+        state.passengerCounts = action.payload.reduce((acc, type) => {
+          acc[type.id] = 0;
+          return acc;
+        }, {} as Record<number, number>);
+      }
     },
+    updatePassengerCount(state, action: PayloadAction<{typeId: number, count: number}>) {
+      const { typeId, count } = action.payload;
+      state.passengerCounts[typeId] = Math.max(0, count);
+      
+      const totalPassengers = Object.values(state.passengerCounts).reduce((sum, c) => sum + c, 0);
+      if (state.selectedSeats.length > totalPassengers) {
+        state.selectedSeats = state.selectedSeats.slice(0, totalPassengers);
+      }
+    },
+    clearSelection(state) {
+      state.selectedSeats = [];
+    }
   },
 });
 
@@ -50,6 +73,8 @@ export const {
   addSelectedSeat,
   removeSelectedSeat,
   setPassengerTypes,
+  updatePassengerCount,
+  clearSelection
 } = tripSlice.actions;
 
 export default tripSlice.reducer;

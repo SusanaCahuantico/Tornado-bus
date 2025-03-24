@@ -1,91 +1,80 @@
 import React, { useEffect, useState } from "react";
 import { getPassengerTypes } from "../services/api";
 import { PassengerType } from "../services/api";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { updatePassengerCount } from "../redux/tripSlice";
 
-const PassengerSelector: React.FC<{ onPassengersChange: (passengers: { [key: number]: number }) => void }> = ({ onPassengersChange }) => {
+const PassengerSelector: React.FC = () => {
+  const dispatch = useAppDispatch();
   const [passengerTypes, setPassengerTypes] = useState<PassengerType[]>([]);
-  const [passengers, setPassengers] = useState<{ [key: number]: number }>({});
-
-  useEffect(() => {
-    onPassengersChange(passengers);
-  }, [passengers, onPassengersChange]);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const fetchPassengerTypes = async () => {
       try {
         const types = await getPassengerTypes();
-
-        if (!Array.isArray(types)) {
-          setPassengerTypes([]);
-          return;
-        }
-
         setPassengerTypes(types);
-
-        const initialPassengers = types.reduce((acc, type) => {
-          acc[type.id] = 0;
-          return acc;
-        }, {} as { [key: number]: number });
-
-        setPassengers(initialPassengers);
+        
+        types.forEach(type => {
+          dispatch(updatePassengerCount({ typeId: type.id, count: 0 }));
+        });
+        
+        setInitialized(true);
       } catch (error) {
-        setPassengerTypes([]);
+        console.error("Error loading passenger types:", error);
       }
     };
 
     fetchPassengerTypes();
-  }, []);
+  }, [dispatch]);
 
-  const handleIncrement = (typeId: number) => {
-    setPassengers((prev) => {
-      const newPassengers = { ...prev, [typeId]: prev[typeId] + 1 };
-      return newPassengers;
-    });
+  const handleCountChange = (typeId: number, change: number) => {
+    dispatch(updatePassengerCount({ typeId, count: change }));
   };
 
-  const handleDecrement = (typeId: number) => {
-    setPassengers((prev) => {
-      const newPassengers = { ...prev, [typeId]: Math.max(0, prev[typeId] - 1) };
-      return newPassengers;
-    });
-  };
+  if (!initialized) return <div>Cargando tipos de pasajero...</div>;
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Selecciona tus pasajeros</h2>
-      {passengerTypes.length === 0 ? (
-        <p>Cargando tipos de pasajeros...</p>
-      ) : (
-        passengerTypes.map((type) => (
-          <div key={type.id} className="mb-4">
-            <h3 className="font-semibold">{type.name}</h3>
-            <p className="text-sm text-gray-600">
-              Edad: {type.ageMin} - {type.ageMax} años
-            </p>
-            <div className="flex items-center mt-4">
+      {passengerTypes.map((type) => (
+        <div key={type.id} className="mb-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold">{type.name}</h3>
+              <p className="text-sm text-gray-600">
+                Edad: {type.ageMin}-{type.ageMax} años
+              </p>
+            </div>
+            <div className="flex items-center">
               <button
-              type="submit"
-                onClick={() => handleDecrement(type.id)}
-                className="p-2 border rounded-l bg-gray-100"
+                type="button"
+                onClick={() => handleCountChange(type.id, -1)}
+                className="px-3 py-1 bg-gray-200 rounded-l"
               >
                 -
               </button>
-              <span className="p-2 border-t border-b border-gray-300">
-                {passengers[type.id]}
+              <span className="px-3 py-1 bg-gray-100">
+                <PassengerCountDisplay typeId={type.id} />
               </span>
               <button
-              type="button"
-                onClick={() => handleIncrement(type.id)}
-                className="p-2 border rounded-r bg-gray-100"
+                type="button"
+                onClick={() => handleCountChange(type.id, 1)}
+                className="px-3 py-1 bg-gray-200 rounded-r"
               >
                 +
               </button>
             </div>
           </div>
-        ))
-      )}
+        </div>
+      ))}
     </div>
   );
+};
+
+const PassengerCountDisplay: React.FC<{ typeId: number }> = ({ typeId }) => {
+  const count = useAppSelector((state) => state.trips.passengerCounts[typeId] || 0);
+  return <>{count}</>;
 };
 
 export default PassengerSelector;

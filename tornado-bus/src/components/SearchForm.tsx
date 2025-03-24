@@ -1,20 +1,30 @@
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { searchOriginCities, City, searchDestinationCities, fetchTrips } from "../services/api";
+import {
+  searchOriginCities,
+  City,
+  searchDestinationCities,
+  fetchTrips,
+} from "../services/api";
 import { searchSchema } from "../utils/validation";
-import { useAppDispatch } from "../redux/hooks";
-import { setAvailableTrips } from "../redux/tripSlice";
-import PassengerSelector from './PassengerSelector';
+import PassengerSelector from "./PassengerSelector";
+import TripList from "./TripList";
+import { Trip } from "../services/api";
+import BusSeatMap from "./BusSeatMap";
 
 const SearchForm: React.FC = () => {
   const [originCities, setOriginCities] = useState<City[]>([]);
   const [showOriginList, setShowOriginList] = useState<boolean>(false);
   const [destinationCities, setDestinationCities] = useState<City[]>([]);
-  const [showDestinationList, setShowDestinationList] = useState<boolean>(false);
-  const [passengers, setPassengers] = useState<{ [Key: number]: number}>({});
+  const [showDestinationList, setShowDestinationList] =
+    useState<boolean>(false);
+  const [passengers, setPassengers] = useState<{ [Key: number]: number }>({});
   const [isLoading, setIsLoading] = useState(false);
-
-  const dispatch = useAppDispatch();
+  const [availableTrips, setAvailableTrips] = useState<Trip[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSearchOrigin = async (value: string) => {
     const cities = await searchOriginCities(value);
@@ -29,23 +39,62 @@ const SearchForm: React.FC = () => {
   const handleSubmit = async (values) => {
     setIsLoading(true);
     try {
-      const originCity = originCities.find((city) => city.name === values.origin);
-      const destinationCity = destinationCities.find((city) => city.name === values.destination);
+      const originCity = originCities.find(
+        (city) => city.name === values.origin
+      );
+      const destinationCity = destinationCities.find(
+        (city) => city.name === values.destination
+      );
 
       if (!originCity || !destinationCity) {
         throw new Error("No se encontraron las ciudades seleccionadas.");
       }
 
-      const formattedDate = new Date(values.date).toISOString().split('T')[0];
-            const totalPassengers = Object.values(passengers).reduce((acc, count) => acc + count, 0);
-
-            const trips = await fetchTrips(originCity.id, destinationCity.id, formattedDate, totalPassengers);
-
-      dispatch(setAvailableTrips(trips));
+      const formattedDate = new Date(values.date).toISOString().split("T")[0];
+      const totalPassengers = Object.values(passengers).reduce(
+        (acc, count) => acc + count,
+        0
+      );
+      const trips = await fetchTrips(
+        originCity.id,
+        destinationCity.id,
+        formattedDate,
+        totalPassengers
+      );
+      console.log("TOTAL DE PASAJEROS", totalPassengers);
+      if (trips.length <= 0) {
+        alert("Debes seleccionar al menos un pasajero");
+        return;
+      }
+      setAvailableTrips(trips);
+      setHasSearched(true);
     } catch (error) {
       console.error("Error al buscar viajes:", error);
+      setAvailableTrips([]);
+      setHasSearched(true);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleTripSelect = (trip: Trip) => {
+    setSelectedTrip(trip);
+    setSelectedSeats([]);
+  };
+
+  const handleSeatSelect = (seatNumber: number) => {
+    if (selectedSeats.includes(seatNumber)) {
+      setSelectedSeats((prev) => prev.filter((seat) => seat !== seatNumber));
+    } else {
+      const totalPassengers = Object.values(passengers).reduce(
+        (acc, count) => acc + count,
+        0
+      );
+      if (selectedSeats.length < totalPassengers) {
+        setSelectedSeats((prev) => [...prev, seatNumber]);
+      } else {
+        alert(`No puedes seleccionar más de ${totalPassengers} pasajeros.`);
+      }
     }
   };
 
@@ -59,7 +108,10 @@ const SearchForm: React.FC = () => {
         {({ values, setFieldValue, validateField }) => (
           <Form className="bg-white p-6 rounded-lg shadow-md">
             <div className="mb-4 relative">
-              <label htmlFor="origin" className="block text-gray-700 font-bold mb-2">
+              <label
+                htmlFor="origin"
+                className="block text-gray-700 font-bold mb-2"
+              >
                 Ciudad origen:
               </label>
               <Field
@@ -162,7 +214,7 @@ const SearchForm: React.FC = () => {
               )}
             </div>
 
-             <PassengerSelector onPassengersChange={setPassengers} />
+            <PassengerSelector onPassengersChange={setPassengers} />
 
             <div>
               <Field
@@ -177,12 +229,73 @@ const SearchForm: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="w-full bg-blue-500 text-white p-2.5 rounded hover:bg-blue-600" disabled={isLoading}>
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white p-2.5 rounded hover:bg-blue-600"
+              disabled={isLoading}
+            >
               {isLoading ? "Buscando..." : "Buscar"}
             </button>
           </Form>
         )}
       </Formik>
+      <TripList
+        availableTrips={availableTrips}
+        hasSearched={hasSearched}
+        onTripSelect={handleTripSelect}
+      />
+      {selectedTrip && (
+        <div className="mt-4 p-4 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Viaje Seleccionado</h2>
+          <h3>
+            {selectedTrip.cityInit} → {selectedTrip.cityEnd}
+          </h3>
+          <p>
+            Fecha de salida: {selectedTrip.dateInitFormat} a las{" "}
+            {selectedTrip.HourInitFormat}
+          </p>
+          <p>
+            Fecha de llegada: {selectedTrip.dateEndFormat} a las{" "}
+            {selectedTrip.HourEndFormat}
+          </p>
+          <p>Precio: ${selectedTrip.amount}</p>
+          <p>Compañía: {selectedTrip.companyName}</p>
+          <img
+            src="https://tornadobus.com/wp-content/uploads/2022/07/Recurso-3.svg"
+            alt={`Logo de Tornado`}
+            className="w-20 h-20 mx-auto"
+          />
+          <div>
+            <BusSeatMap
+              travelId={selectedTrip.id}
+              cityInitId={selectedTrip.cityInitID}
+              cityEndId={selectedTrip.cityEndID}
+              onSeatSelect={handleSeatSelect}
+              selectedSeats={selectedSeats}
+            />
+
+            <div className="mt-4 flex justify-between items-center">
+              <span className="text-sm text-gray-600">
+                {selectedSeats.length} de{" "}
+                {Object.values(passengers).reduce((a, b) => a + b, 0)} asientos
+                seleccionados
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowConfirmation(true)}
+                disabled={selectedSeats.length === 0}
+                className={`px-6 py-2 rounded-md font-medium ${
+                  selectedSeats.length > 0
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                Confirmar Compra
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
