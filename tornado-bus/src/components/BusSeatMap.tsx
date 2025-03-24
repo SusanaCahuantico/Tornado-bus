@@ -43,7 +43,7 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ isOpen, message, onClos
 
 const BusSeatMap: React.FC<BusSeatMapProps> = ({ travelId, cityInitId, cityEndId }) => {
   const dispatch = useAppDispatch();
-  const { selectedSeats, passengerCounts, passengerTypesList } = useAppSelector((state) => state.trips);
+  const { selectedSeats, passengerCounts } = useAppSelector((state) => state.trips);
   const [busLayout, setBusLayout] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
