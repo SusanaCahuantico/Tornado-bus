@@ -2,6 +2,7 @@ import './App.css'
 import React from 'react';
 import Navbar from './components/Navbar';
 import SearchForm from './components/SearchForm';
+import { Route, Routes } from 'react-router-dom';
 
 const App: React.FC = () => {
   return (
@@ -9,6 +10,9 @@ const App: React.FC = () => {
       <Navbar />
       <div className="container mx-auto p-4">
         <SearchForm />
+        <Routes>
+          <Route path="/" element={<SearchForm />} />
+        </Routes>
       </div>
     </div>
   );
