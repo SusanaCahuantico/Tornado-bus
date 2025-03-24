@@ -2,10 +2,13 @@
   "name": "tornado-bus",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://susanacahuantico.github.io/Tornado-bus/tornado-bus",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist -b gh-pages", 
     "lint": "eslint .",
     "preview": "vite preview"
   },

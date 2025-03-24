@@ -1,5 +1,4 @@
-import './index.css'
-import React from 'react';
+import './index.css';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
@@ -10,14 +9,11 @@ const rootElement = document.getElementById('root');
 
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
-
+  
   root.render(
     <Provider store={store}>
-      {/* En producción */}
-      <Router basename='/Tonado-bus/tornado-bus'>
-      {/* En local */}
-      {/* <Router> */}
-      <App />
+      <Router basename={import.meta.env.BASE_URL}>
+        <App />
       </Router>
     </Provider>
   );
