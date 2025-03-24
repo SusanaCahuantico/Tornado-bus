@@ -15,7 +15,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const { selectedSeats, selectedTrip, passengerTypes } = useAppSelector((state) => state.trips);
   
   const totalPassengers = Object.values(passengerTypes).reduce((acc, count) => acc + count, 0);
-  console.loh("TOTAL PASSENGER", totalPassengers)
   const totalPrice = selectedTrip ? selectedTrip.amount * selectedSeats.length : 0;
 
   return (
