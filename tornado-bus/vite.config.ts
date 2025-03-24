@@ -5,8 +5,13 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/Tornado-bus/tornado-bus/',
   plugins: [
     react(),
     tailwindcss()
   ],
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  }
 })
