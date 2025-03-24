@@ -10,11 +10,9 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
 
-  const isProduction = import.meta.env.PROD; // Si usas Vite
-
   root.render(
     <Provider store={store}>
-      <Router basename={isProduction ? "/Tornado-bus/tornado-bus" : ""}>
+      <Router basename={import.meta.env.BASE_URL}>
         <App />
       </Router>
     </Provider>
