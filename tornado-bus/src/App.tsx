@@ -2,7 +2,6 @@ import './App.css'
 import React from 'react';
 import Navbar from './components/Navbar';
 import SearchForm from './components/SearchForm';
-// import TripList from './components/TripList';
 
 const App: React.FC = () => {
   return (
