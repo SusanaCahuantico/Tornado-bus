@@ -1,3 +1,0 @@
-Reto ténico:
-
-Tornado-bus

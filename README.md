@@ -1,2 +1,0 @@
-# Tornado-bus
-Prueba técnica
