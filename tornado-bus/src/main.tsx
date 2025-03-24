@@ -13,7 +13,10 @@ if (rootElement) {
 
   root.render(
     <Provider store={store}>
+      {/* En producción */}
       <Router basename='/Tonado-bus/tornado-bus'>
+      {/* En local */}
+      {/* <Router> */}
       <App />
       </Router>
     </Provider>
