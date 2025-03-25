@@ -31,7 +31,7 @@ export interface Trip {
   addressInit: string;
   totalSeats: number;
   totalNivel: number;
-  amount: string;
+  amount: number;
   companyName: string;
   companyLogo: string;
   currency: string;

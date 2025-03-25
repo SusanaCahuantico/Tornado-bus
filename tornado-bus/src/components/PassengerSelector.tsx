@@ -4,7 +4,10 @@ import { PassengerType } from "../services/api";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { updatePassengerCount } from "../redux/tripSlice";
 
-const PassengerSelector: React.FC = () => {
+interface PassengerSelectorProps {
+  onPassengersChange: React.Dispatch<React.SetStateAction<Record<number, number>>>;
+}
+const PassengerSelector: React.FC<PassengerSelectorProps> = () => {
   const dispatch = useAppDispatch();
   const [passengerTypes, setPassengerTypes] = useState<PassengerType[]>([]);
   const [initialized, setInitialized] = useState(false);

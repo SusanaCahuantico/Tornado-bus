@@ -8,6 +8,7 @@ interface TripState {
   selectedSeats: Seat[];
   passengerCounts: Record<number, number>;
   passengerTypesList: PassengerType[];
+  passengerTypes: Record<string, number>;
 }
 
 const initialState: TripState = {
@@ -17,6 +18,7 @@ const initialState: TripState = {
   selectedSeats: [],
   passengerCounts: {},
   passengerTypesList: [],
+  passengerTypes: {}
 };
 
 const tripSlice = createSlice({

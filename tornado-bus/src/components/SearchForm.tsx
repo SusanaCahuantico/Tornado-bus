@@ -24,7 +24,7 @@ const SearchForm: React.FC = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
 
   const handleSearchOrigin = async (value: string) => {
     const cities = await searchOriginCities(value);
@@ -36,7 +36,7 @@ const SearchForm: React.FC = () => {
     setDestinationCities(cities);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values: { origin: string; destination: string; date: string | number | Date; }) => {
     setIsLoading(true);
     try {
       const originCity = originCities.find(
@@ -276,9 +276,7 @@ const SearchForm: React.FC = () => {
 
             <div className="mt-4 flex justify-between items-center">
               <span className="text-sm text-gray-600">
-                {selectedSeats.length} de{" "}
-                {Object.values(passengers).reduce((a, b) => a + b, 0)} asientos
-                seleccionados
+              {`${selectedSeats.length} de ${Object.values(passengers).reduce((a, b) => a + b, 0)} asientos seleccionados`}
               </span>
               <button
                 type="button"
